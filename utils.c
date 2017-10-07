@@ -6,22 +6,28 @@
 /* You may find implementing this function helpful */
 int bitSigner( unsigned int field, unsigned int size){
     /* YOUR CODE HERE */
-    return 0;
+    if ((field >> (size - 1)) == 1) {
+        return (int)((field << (32- size) >> (32-size)) | (0xFFFFFFFF << (32-size)));
+    }
+    return (int)(field << (32-size) >> (32-size));
 }
 
 int get_branch_offset(Instruction instruction) {
     /* YOUR CODE HERE */
-    return 0;
+    unsigned eleventh = instruction.sbtype.imm5 << 31 >> 31;
+    unsigned twelth = instruction.sbtype.imm7 << 25 >> 31;
+
+    return bitSigner(, 12);
 }
 
 int get_jump_offset(Instruction instruction) {
     /* YOUR CODE HERE */
-    return 0;
+    return bitSigner(instruction.ujtype.imm, 20);
 }
 
 int get_store_offset(Instruction instruction) {
     /* YOUR CODE HERE */
-    return 0;
+    return bitSigner((instruction.stype.imm7 << 5) | instruction.stype.imm5, 12);
 }
 
 void handle_invalid_instruction(Instruction instruction) {

@@ -35,8 +35,8 @@ void execute_rtype(Instruction instruction, Processor *processor) {
 }
 
 void execute_itype_except_load(Instruction instruction, Processor *processor) {
-    int shiftOp;
-    shiftOp = -1;
+    /*int shiftOp;
+    shiftOp = -1;*/
     switch(0) { // What do we switch on?
         /* YOUR CODE HERE */
         default:
@@ -56,8 +56,8 @@ void execute_ecall(Processor *p, Byte *memory) {
 }
 
 void execute_branch(Instruction instruction, Processor *processor) {
-    int branchaddr;
-    branchaddr = 0;
+    /*int branchaddr;
+    branchaddr = 0;*/
     /* Remember that the immediate portion of branches
        is counting half-words, so make sure to account for that. */
     switch(0) { // What do we switch on?
@@ -91,14 +91,14 @@ void execute_store(Instruction instruction, Processor *processor, Byte *memory) 
 void execute_jal(Instruction instruction, Processor *processor) {
 	/* Remember that the immediate and offset are counting half-words.
 	   So make sure to plan accordingly to accomodate that. */
-    int nextPC;
-    nextPC = 0;
+    /*int nextPC;
+    nextPC = 0;*/
     /* YOUR CODE HERE */
 }
 
 void execute_lui(Instruction instruction, Processor *processor) {
-    int imm;
-    imm = 0;
+    /*int imm;
+    imm = 0;*/
     /* YOUR CODE HERE */  
 }
 
