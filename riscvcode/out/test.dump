@@ -12,8 +12,8 @@
 0000102c: addi	x10, x0, 20
 00001030: Invalid Instruction: 0x00155513
 00001034: addi	x6, x0, 10
-00001038: beq	x10, x6, 0
-bne	x10, x6, 0
+00001038: beq	x10, x6, -4
+bne	x10, x6, -4
 Invalid Instruction: 0x00650c63
 0000103c: lui	x11, 1048575
 00001040: lui	x18, 2989
