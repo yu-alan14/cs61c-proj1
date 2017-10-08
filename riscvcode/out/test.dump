@@ -6,11 +6,11 @@
 00001014: xori	x5, x5, 2047
 00001018: lb	x8, 0(x2)
 0000101c: lh	x9, 1(x2)
-00001020: Invalid Instruction: 0x41f2d293
+00001020: srai	x5, x5, 130023424
 00001024: slt	x10, x5, x0
 00001028: add	x5, x5, x10
 0000102c: addi	x10, x0, 20
-00001030: Invalid Instruction: 0x00155513
+00001030: srli	x10, x10, 1
 00001034: addi	x6, x0, 10
 00001038: beq	x10, x6, -4
 bne	x10, x6, -4

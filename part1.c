@@ -153,12 +153,12 @@ void write_itype_except_load(Instruction instruction) {
             print_itype_except_load("xori", instruction, instruction.itype.imm);
             break;
         case 0x5:
-            switch(instruction.itype.imm) {
+            switch(instruction.itype.imm >> 5) {
                 case 0x00:
                     print_itype_except_load("srli", instruction, instruction.itype.imm);
                     break;
                 case 0x20:
-                    print_itype_except_load("srai", instruction, instruction.itype.imm);
+                    print_itype_except_load("srai", instruction, instruction.itype.imm << 22);
                     break;
                 default:
                     handle_invalid_instruction(instruction);
