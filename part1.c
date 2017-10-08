@@ -153,12 +153,12 @@ void write_itype_except_load(Instruction instruction) {
             print_itype_except_load("xori", instruction, instruction.itype.imm);
             break;
         case 0x5:
-            switch(instruction.itype.imm) {
+            switch(instruction.itype.imm >> 5) {
                 case 0x00:
                     print_itype_except_load("srli", instruction, instruction.itype.imm);
                     break;
                 case 0x20:
-                    print_itype_except_load("srai", instruction, instruction.itype.imm);
+                    print_itype_except_load("srai", instruction, instruction.itype.imm << 22 >> 22);
                     break;
                 default:
                     handle_invalid_instruction(instruction);
@@ -218,8 +218,10 @@ void write_branch(Instruction instruction) {
         /* YOUR CODE HERE */
         case 0x0:
             print_branch("beq", instruction);
+            break;
         case 0x1:
-            print_branch("bne", instruction);    
+            print_branch("bne", instruction);
+            break;    
         default:
             handle_invalid_instruction(instruction);
             break;
@@ -252,7 +254,7 @@ void print_rtype(char *name, Instruction instruction) {
 void print_itype_except_load(char *name, Instruction instruction, int imm) {
     /* YOUR CODE HERE */
     printf("%s\tx%d, x%d, %d\n",
-        name, instruction.itype.rd, instruction.itype.rs1, imm);
+        name, instruction.itype.rd, instruction.itype.rs1, bitSigner(imm, 12));
 }
 
 void print_load(char *name, Instruction instruction) {

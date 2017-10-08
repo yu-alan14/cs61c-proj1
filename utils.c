@@ -7,7 +7,7 @@
 int bitSigner( unsigned int field, unsigned int size){
     /* YOUR CODE HERE */
     if ((field >> (size - 1)) == 1) {
-        return (int)((field << (32- size) >> (32-size)) | (0xFFFFFFFF << (32-size)));
+        return (int)((field << (32-size) >> (32-size)) | (0xFFFFFFFF << size));
     }
     return (int)(field << (32-size) >> (32-size));
 }
@@ -16,16 +16,20 @@ int bitSigner( unsigned int field, unsigned int size){
 
 int get_branch_offset(Instruction instruction) {
     /* YOUR CODE HERE */
-    unsigned eleventh = instruction.sbtype.imm5 << 31 >> 31 << 10;
-    unsigned twelth = instruction.sbtype.imm7 << 25 >> 31 << 11;
-    unsigned onetofour = instruction.sbtype.imm5 << 27 >> 28;
-    unsigned fivetoten = instruction.sbtype.imm7 << 26 >> 22;
+    unsigned eleventh = instruction.sbtype.imm5 << 31 >> 31 << 11;
+    unsigned twelth = instruction.sbtype.imm7 << 25 >> 31 << 12;
+    unsigned onetofour = instruction.sbtype.imm5 << 27 >> 28 << 1;
+    unsigned fivetoten = instruction.sbtype.imm7 << 26 >> 26 << 5;
     return (twelth | eleventh | fivetoten | onetofour);
 }
 
 int get_jump_offset(Instruction instruction) {
     /* YOUR CODE HERE */
-    return bitSigner(instruction.ujtype.imm, 20);
+    unsigned twenty = instruction.ujtype.imm << 12 >> 31 << 21;
+    unsigned onetoten = instruction.ujtype.imm << 13 >> 22 << 11;
+    unsigned eleven = instruction.ujtype.imm << 23 >> 31 << 12;
+    unsigned twelvetonineteen = instruction.ujtype.imm << 24 >> 12;
+    return (twenty | twelvetonineteen | eleven | onetoten);
 }
 
 int get_store_offset(Instruction instruction) {
