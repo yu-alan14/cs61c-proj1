@@ -18,19 +18,20 @@ int get_branch_offset(Instruction instruction) {
     /* YOUR CODE HERE */
     unsigned int eleventh = instruction.sbtype.imm5 << 31 >> 31 << 11;
     unsigned int twelth = instruction.sbtype.imm7 << 25 >> 31 << 12;
-    unsigned int onetofour = instruction.sbtype.imm5 << 27 >> 28 << 1;
+    unsigned int onetofour = instruction.sbtype.imm5 >> 1 << 1;
     unsigned int fivetoten = instruction.sbtype.imm7 << 26 >> 26 << 5;
     unsigned int immediate = (twelth | eleventh | fivetoten | onetofour);
-    return immediate;
+    return immediate;  
 }
 
 int get_jump_offset(Instruction instruction) {
     /* YOUR CODE HERE */
-    unsigned int twenty = instruction.ujtype.imm << 12 >> 31 << 21;
-    unsigned int onetoten = instruction.ujtype.imm << 13 >> 22 << 11;
-    unsigned int eleven = instruction.ujtype.imm << 23 >> 31 << 12;
-    unsigned int twelvetonineteen = instruction.ujtype.imm << 24 >> 12;
-    return (int)(twenty | twelvetonineteen | eleven | onetoten);
+    unsigned int twenty = instruction.ujtype.imm << 12 >> 31 << 20;
+    unsigned int onetoten = instruction.ujtype.imm >> 9 << 21 >> 21 << 1;
+    unsigned int eleven = instruction.ujtype.imm << 23 >> 31 << 11;
+    unsigned int twelvetonineteen = instruction.ujtype.imm << 24 >> 24 << 12;
+    unsigned int immediate = (twenty | twelvetonineteen | eleven | onetoten);;
+    return immediate;
 }
 
 int get_store_offset(Instruction instruction) {

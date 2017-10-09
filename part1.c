@@ -232,45 +232,45 @@ void write_branch(Instruction instruction) {
 
 void write_lui(Instruction instruction) {
     /* YOUR CODE HERE */
-    printf("lui\tx%d, %d\n", instruction.utype.rd, instruction.utype.imm);
+    printf(LUI_FORMAT, instruction.utype.rd, instruction.utype.imm);
 }
 
 void write_jal(Instruction instruction) {
     /* YOUR CODE HERE */
-    printf("jal\tx%d, %d\n", instruction.ujtype.rd, get_jump_offset(instruction));
+    printf(JAL_FORMAT, instruction.ujtype.rd, get_jump_offset(instruction));
 }
 
 void write_ecall(Instruction instruction) {
     /* YOUR CODE HERE */
-    printf("ecall\n");
+    printf(ECALL_FORMAT);
 }
 
 void print_rtype(char *name, Instruction instruction) {
     /* YOUR CODE HERE */
-    printf("%s\tx%d, x%d, x%d\n", 
+    printf(RTYPE_FORMAT, 
         name, instruction.rtype.rd, instruction.rtype.rs1, instruction.rtype.rs2);
 }
 
 void print_itype_except_load(char *name, Instruction instruction, int imm) {
     /* YOUR CODE HERE */
-    printf("%s\tx%d, x%d, %d\n",
+    printf(ITYPE_FORMAT,
         name, instruction.itype.rd, instruction.itype.rs1, bitSigner(imm, 12));
 }
 
 void print_load(char *name, Instruction instruction) {
     /* YOUR CODE HERE */
-    printf("%s\tx%d, %d(x%d)\n",
+    printf(MEM_FORMAT,
         name, instruction.itype.rd, instruction.itype.imm, instruction.itype.rs1);
 }
 
 void print_store(char *name, Instruction instruction) {
     /* YOUR CODE HERE */
-    printf("%s\tx%d, %d(x%d)\n", 
+    printf(MEM_FORMAT, 
         name, instruction.stype.rs2, get_store_offset(instruction), instruction.stype.rs1);
 }
 
 void print_branch(char *name, Instruction instruction) {
     /* YOUR CODE HERE */
-    printf("%s\tx%d, x%d, %d\n",
+    printf(BRANCH_FORMAT,
         name, instruction.sbtype.rs1, instruction.sbtype.rs2, get_branch_offset(instruction));
 }
