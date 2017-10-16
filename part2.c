@@ -121,7 +121,7 @@ void execute_rtype(Instruction instruction, Processor *processor) {
    					;
    					unsigned int xor1 = processor->R[instruction.rtype.rs1];
    					unsigned int xor2 = processor->R[instruction.rtype.rs2];
-   					processor->R[instruction.rtype.rd] = xor1 * xor2;
+   					processor->R[instruction.rtype.rd] = xor1 ^ xor2;
    					break;
    				case 0x01:
    					;
@@ -148,6 +148,7 @@ void execute_rtype(Instruction instruction, Processor *processor) {
    					;
    					// arithmetic right shift
    					unsigned int sra1 = processor->R[instruction.rtype.rs1];
+            sra1 = bitSigner(sra1, 5);
    					unsigned int sra2 = processor->R[instruction.rtype.rs2];
    					processor->R[instruction.rtype.rd] = sra1 >> sra2;
    					break;
@@ -236,6 +237,7 @@ void execute_itype_except_load(Instruction instruction, Processor *processor) {
         			;
         			//arithmetic shift left idk??
         			unsigned int srai1 = processor->R[instruction.itype.rs1];
+              srai1 = bitSigner(srai1, 5);
         			unsigned int srai2 = bitSigner(instruction.itype.imm, 12);
         			processor->R[instruction.itype.rd] = srai1 >> srai2;
         			break;
