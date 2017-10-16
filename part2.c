@@ -60,9 +60,9 @@ void execute_rtype(Instruction instruction, Processor *processor) {
         	switch(instruction.rtype.funct7) {
         		case 0x00:
         			;
-        			int add1 = processor->R[instruction.rtype.rs1];
-        			int add2 = processor->R[instruction.rtype.rs2];
-        			processor->R[instruction.rtype.rd] = add1 + add2;
+        			int add1 = bitSigner(processor->R[instruction.rtype.rs1], 32);
+        			int add2 = bitSigner(processor->R[instruction.rtype.rs2], 32);
+        			processor->R[instruction.rtype.rd] = bitSigner(add1 + add2, 32);
         			break;
         		case 0x01:
         			;
@@ -147,7 +147,7 @@ void execute_rtype(Instruction instruction, Processor *processor) {
    				case 0x20:
    					;
    					// arithmetic right shift
-   					unsigned int sra1 = processor->R[instruction.rtype.rs1];
+   					unsigned int sra1 = bitSigner(processor->R[instruction.rtype.rs1], 5);
    					unsigned int sra2 = processor->R[instruction.rtype.rs2];
    					processor->R[instruction.rtype.rd] = sra1 >> sra2;
    					break;
@@ -197,24 +197,24 @@ void execute_itype_except_load(Instruction instruction, Processor *processor) {
         /* YOUR CODE HERE */
         case 0x0:
         	;
-        	unsigned int addi1 = processor->R[instruction.itype.rs1];
-        	unsigned int addi2 = bitSigner(instruction.itype.imm, 12);
+        	int addi1 = processor->R[instruction.itype.rs1];
+        	int addi2 = bitSigner(instruction.itype.imm, 12);
         	processor->R[instruction.itype.rd] = addi1 + addi2;
         	break;
         case 0x1:
         	;
-        	unsigned int slli1 = processor->R[instruction.itype.rs1];
-        	unsigned int slli2 = bitSigner(instruction.itype.imm, 12);
+        	int slli1 = processor->R[instruction.itype.rs1];
+        	int slli2 = bitSigner(instruction.itype.imm, 12);
         	processor->R[instruction.itype.rd] = slli1 << slli2;
         	break;
         case 0x2:
         	;
-        	unsigned int slti1 = processor->R[instruction.itype.rs1];
-        	unsigned int slti2 = bitSigner(instruction.itype.imm, 12);
+        	int slti1 = processor->R[instruction.itype.rs1];
+        	int slti2 = bitSigner(instruction.itype.imm, 12);
         	if (slti1 < slti2) {
         		processor->R[instruction.itype.rd] = 1;
         	} else {
-        		processor->R[instruction.itype.rd] = 2;
+        		processor->R[instruction.itype.rd] = 0;
         	}
         	break;
         case 0x4:
@@ -235,7 +235,7 @@ void execute_itype_except_load(Instruction instruction, Processor *processor) {
         		case 0x20:
         			;
         			//arithmetic shift left idk??
-        			unsigned int srai1 = processor->R[instruction.itype.rs1];
+        			unsigned int srai1 = bitSigner(processor->R[instruction.itype.rs1], 5);
         			unsigned int srai2 = bitSigner(instruction.itype.imm, 12);
         			processor->R[instruction.itype.rd] = srai1 >> srai2;
         			break;
@@ -265,9 +265,10 @@ void execute_itype_except_load(Instruction instruction, Processor *processor) {
 void execute_ecall(Processor *p, Byte *memory) {
     switch(p->R[10]) { // What do we switch on?
         case 1:
-          printf("%d\n", p->R[11]);
+          printf("%d", p->R[11]);
           break;
         case 10:
+          printf("exiting the simulator\n");
           exit(0);
           break;
         default: // undefined ecall
@@ -357,7 +358,7 @@ void execute_jal(Instruction instruction, Processor *processor) {
 
 void execute_lui(Instruction instruction, Processor *processor) {
     int imm;
-    imm = bitSigner(instruction.utype.imm, 32) >> 12 << 12;
+    imm = bitSigner(instruction.utype.imm, 32) << 12;
     processor->R[instruction.utype.rd] = imm;
     /* YOUR CODE HERE */  
 }
