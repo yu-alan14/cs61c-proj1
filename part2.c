@@ -37,7 +37,6 @@ void execute_instruction(Instruction instruction,Processor *processor,Byte *memo
             break;
         case 0x63:
             execute_branch(instruction, processor);
-            processor->PC += 4;
             break;
         case 0x37:
             execute_lui(instruction, processor);
@@ -284,11 +283,15 @@ void execute_branch(Instruction instruction, Processor *processor) {
           //branch eq
           if (eq1 == eq2) {
             processor->PC = branchaddr;
+          } else {
+            processor->PC += 4;
           }
         case 0x1:
           // branch not eq
           if (eq1 != eq2) {
             processor->PC = branchaddr;
+          } else {
+            processor->PC += 4;
           }
         /* YOUR CODE HERE */
         default:
