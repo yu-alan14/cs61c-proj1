@@ -18,29 +18,24 @@ void execute_instruction(Instruction instruction,Processor *processor,Byte *memo
     switch(instruction.opcode) { // What do we switch on?
         case 0x33:
             execute_rtype(instruction, processor);
-            processor->PC += 4;
             break;
         case 0x03:
             execute_load(instruction, processor, memory);
             break;
         case 0x13:
             execute_itype_except_load(instruction, processor);
-            processor->PC += 4;
             break;
         case 0x73:
             execute_ecall(processor, memory);
-            processor->PC += 4;
             break;        
         case 0x23:
             execute_store(instruction, processor, memory);
-            processor->PC += 4;
             break;
         case 0x63:
             execute_branch(instruction, processor);
             break;
         case 0x37:
             execute_lui(instruction, processor);
-            processor->PC += 4;
             break;
         case 0x6f:
             execute_jal(instruction, processor);
@@ -120,7 +115,7 @@ void execute_rtype(Instruction instruction, Processor *processor) {
    					;
    					unsigned int xor1 = processor->R[instruction.rtype.rs1];
    					unsigned int xor2 = processor->R[instruction.rtype.rs2];
-   					processor->R[instruction.rtype.rd] = xor1 ^ xor2;
+   					processor->R[instruction.rtype.rd] = xor1 * xor2;
    					break;
    				case 0x01:
    					;
@@ -182,11 +177,12 @@ void execute_rtype(Instruction instruction, Processor *processor) {
    			unsigned int and2 = processor->R[instruction.rtype.rs2];
    			processor->R[instruction.rtype.rd] = and1 & and2;
    			break;
-        default:
-            handle_invalid_instruction(instruction);
-            exit(0);
-            break;
+      default:
+        handle_invalid_instruction(instruction);
+        exit(0);
+        break;
     }
+    processor->PC += 4; //Checks next line of instruction, look at JAL not sure
 }
 
 void execute_itype_except_load(Instruction instruction, Processor *processor) {
@@ -259,6 +255,7 @@ void execute_itype_except_load(Instruction instruction, Processor *processor) {
             handle_invalid_instruction(instruction);
             break;
     }
+    processor->PC += 4;
 }
 
 void execute_ecall(Processor *p, Byte *memory) {
@@ -269,13 +266,14 @@ void execute_ecall(Processor *p, Byte *memory) {
             exit(0);
             break;
     }
+    p->PC += 4;
 }
 
 void execute_branch(Instruction instruction, Processor *processor) {
-    int branchaddr;
-    branchaddr = processor->PC + get_branch_offset(instruction);
+    /*int branchaddr;
+    branchaddr = 0;*/
     /* Remember that the immediate portion of branches
-       is counting half-words, so make sure to account for that.??? */ 
+       is counting half-words, so make sure to account for that. */
     switch(instruction.sbtype.funct3) { // What do we switch on?
         unsigned int eq1 = processor->R[instruction.sbtype.rs1];
         unsigned int eq2 = processor->R[instruction.sbtype.rs2];
@@ -299,6 +297,7 @@ void execute_branch(Instruction instruction, Processor *processor) {
             exit(0);
             break;
     }
+    processor->PC += 4;
 }
 
 void execute_load(Instruction instruction, Processor *processor, Byte *memory) {
@@ -314,6 +313,7 @@ void execute_load(Instruction instruction, Processor *processor, Byte *memory) {
         handle_invalid_instruction(instruction);
         break;
     }
+    processor->PC += 4;
 }
 
 void execute_store(Instruction instruction, Processor *processor, Byte *memory) {
@@ -330,22 +330,22 @@ void execute_store(Instruction instruction, Processor *processor, Byte *memory) 
           exit(0);
           break;
     }
+    processor->PC += 4;
 }
 
 void execute_jal(Instruction instruction, Processor *processor) {
     /* Remember that the immediate and offset are counting half-words.
 	   So make sure to plan accordingly to accomodate that. */
-    int nextPC;
-    nextPC = processor->PC + get_jump_offset(instruction);
+    /*int nextPC;
+    nextPC = 0;*/
     /* YOUR CODE HERE */
-    processor->R[instruction.ujtype.rd] = nextPC;
 }
 
 void execute_lui(Instruction instruction, Processor *processor) {
-    int imm;
-    imm = instruction.utype.imm; /*31:12 bit imm*/
-    /* YOUR CODE HERE */
-    processor->R[instruction.utype.rd] = imm;  
+    /*int imm;
+    imm = 0;*/
+    /* YOUR CODE HERE */  
+    processor->PC += 4;
 }
 
 /* Checks that the address is aligned correctly */
@@ -394,17 +394,17 @@ Word load(Byte *memory,Address address,Alignment alignment, int check_align) {
     /* YOUR CODE HERE */
     uint32_t data = 0;
     if (alignment == LENGTH_BYTE) {
-        data = memory[address];
+      data = memory[address];
     }
     else if (alignment == LENGTH_HALF_WORD) {
-      data = memory[address];
-      data = (data << 8) | memory[address + 1];
+      data = memory[address + 1];
+      data = (data << 8) | memory[address];
     }
     else if (alignment == LENGTH_WORD) {
-      data = memory[address];
-      data = (data << 8) | memory[address + 1];
+      data = memory[address + 3];
       data = (data << 8) | memory[address + 2];
-      data = (data << 8) | memory[address + 3];
+      data = (data << 8) | memory[address + 1];
+      data = (data << 8) | memory[address];
     }
     return data;
 }
