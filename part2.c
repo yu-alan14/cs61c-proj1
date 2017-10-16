@@ -302,14 +302,14 @@ void execute_load(Instruction instruction, Processor *processor, Byte *memory) {
     switch(instruction.itype.funct3) { // What do we switch on?
         /* YOUR CODE HERE */
       case 0x0:
-        //load byte
+        processor->R[instruction.itype.rd] = load(memory, instruction.itype.rs1 + instruction.itype.imm, LENGTH_BYTE, 0);
       case 0x1:
-        // load half
+        processor->R[instruction.itype.rd] = load(memory, instruction.itype.rs1 + instruction.itype.imm, LENGTH_HALF_WORD, 0);
       case 0x2:
-        //load word
-        default:
-            handle_invalid_instruction(instruction);
-            break;
+        processor->R[instruction.itype.rd] = load(memory, instruction.itype.rs1 + instruction.itype.imm, LENGTH_WORD, 0);
+      default:
+        handle_invalid_instruction(instruction);
+        break;
     }
 }
 
@@ -317,11 +317,11 @@ void execute_store(Instruction instruction, Processor *processor, Byte *memory) 
     switch(instruction.stype.funct3) { // What do we switch on?
         /* YOUR CODE HERE */
       case 0x0:
-        // store byte
+        store(memory, processor->R[instruction.stype.rs1], LENGTH_BYTE, processor->R[instruction.stype.rs2], 0);
       case 0x1:
-        // store half
+        store(memory, processor->R[instruction.stype.rs1], LENGTH_HALF_WORD, processor->R[instruction.stype.rs2], 0);
       case 0x2:
-        // store word
+        store(memory, processor->R[instruction.stype.rs1], LENGTH_WORD, processor->R[instruction.stype.rs2], 0);
       default:
           handle_invalid_instruction(instruction);
           exit(0);
@@ -367,6 +367,19 @@ void store(Byte *memory,Address address,Alignment alignment,Word value, int chec
     if((check_align && !check(address,alignment)) || (address >= MEMORY_SPACE)) {
         handle_invalid_write(address);
     }
+    if (alignment == LENGTH_BYTE) {
+      memory[address] = value & 0xFF;
+    }
+    else if (alignment == LENGTH_HALF_WORD) {
+      memory[address] = value & 0xFF;
+      memory[address + 1] = (value >> 8) & 0xFF;
+    }
+    else if (alignment == LENGTH_WORD) {
+      memory[address] = value & 0xFF;
+      memory[address + 1] = (value >> 8) & 0xFF;
+      memory[address + 2] = (value >> 16) & 0xFF;
+      memory[address + 3] = (value >> 24) & 0xFF;
+    }
     /* YOUR CODE HERE */
 }
 
@@ -380,15 +393,15 @@ Word load(Byte *memory,Address address,Alignment alignment, int check_align) {
     if (alignment == LENGTH_BYTE) {
         data = memory[address];
     }
-    if (alignment == LENGTH_HALF_WORD) {
+    else if (alignment == LENGTH_HALF_WORD) {
       data = memory[address];
-      data = data << 8 | memory[address + 1];
+      data = (data << 8) | memory[address + 1];
     }
-    if (alignment == LENGTH_WORD) {
+    else if (alignment == LENGTH_WORD) {
       data = memory[address];
-      data = data << 8 | memory[address + 1];
-      data = data << 8 | memory[address + 2];
-      data = data << 8 | memory[address + 3];
+      data = (data << 8) | memory[address + 1];
+      data = (data << 8) | memory[address + 2];
+      data = (data << 8) | memory[address + 3];
     }
     return data;
 }
