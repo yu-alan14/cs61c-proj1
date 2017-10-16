@@ -265,7 +265,7 @@ void execute_itype_except_load(Instruction instruction, Processor *processor) {
 void execute_ecall(Processor *p, Byte *memory) {
     switch(p->R[10]) { // What do we switch on?
         case 1:
-          printf("%d", p->R[11]);
+          printf("%d\n", p->R[11]);
           break;
         case 10:
           exit(0);
