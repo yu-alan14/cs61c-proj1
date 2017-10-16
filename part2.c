@@ -42,7 +42,7 @@ void execute_instruction(Instruction instruction,Processor *processor,Byte *memo
             break;
         default: // undefined opcode
             handle_invalid_instruction(instruction);
-            exit(-1);
+            exit(0);
             break;
     }
 }
@@ -73,7 +73,7 @@ void execute_rtype(Instruction instruction, Processor *processor) {
         			break;
         		default: 
         			handle_invalid_instruction(instruction);
-        			exit(-1);
+        			exit(0);
         			break;
         	}
         	break;
@@ -95,7 +95,7 @@ void execute_rtype(Instruction instruction, Processor *processor) {
         			break;
         		default:
         			handle_invalid_instruction(instruction);
-        			exit(-1);
+        			exit(0);
         			break;
         	}
         	break;
@@ -125,7 +125,7 @@ void execute_rtype(Instruction instruction, Processor *processor) {
    					break;
    				default:
    					handle_invalid_instruction(instruction);
-   					exit(-1);
+   					exit(0);
    					break;
    			}
    			break;
@@ -147,7 +147,7 @@ void execute_rtype(Instruction instruction, Processor *processor) {
    					break;
    				default:
    					handle_invalid_instruction(instruction);
-   					exit(-1);
+   					exit(0);
    					break;
    			}
    			break;
@@ -167,7 +167,7 @@ void execute_rtype(Instruction instruction, Processor *processor) {
    					break;
    				default:
    					handle_invalid_instruction(instruction);
-   					exit(-1);
+   					exit(0);
    					break;
    			}
    			break;
@@ -179,7 +179,7 @@ void execute_rtype(Instruction instruction, Processor *processor) {
    			break;
         default:
             handle_invalid_instruction(instruction);
-            exit(-1);
+            exit(0);
             break;
     }
     processor->PC += 4; //Checks next line of instruction, look at JAL not sure
@@ -263,7 +263,7 @@ void execute_ecall(Processor *p, Byte *memory) {
         /* YOUR CODE HERE */
         default: // undefined ecall
             printf("Illegal ecall number %d\n", -1); // What stores the ecall arg?
-            exit(-1);
+            exit(0);
             break;
     }
     p->PC += 4;
@@ -274,19 +274,31 @@ void execute_branch(Instruction instruction, Processor *processor) {
     branchaddr = 0;*/
     /* Remember that the immediate portion of branches
        is counting half-words, so make sure to account for that. */
-    switch(0) { // What do we switch on?
+    switch(instruction.sbtype.funct3) { // What do we switch on?
+        unsigned int eq1 = processor->R[instruction.sbtype.rs1];
+        unsigned int eq2 = processor->R[instruction.sbtype.rs2];
+        case 0x0:
+          //branch eq
+        case 0x1:
+          // branch not eq
         /* YOUR CODE HERE */
         default:
             handle_invalid_instruction(instruction);
-            exit(-1);
+            exit(0);
             break;
     }
     processor->PC += 4;
 }
 
 void execute_load(Instruction instruction, Processor *processor, Byte *memory) {
-    switch(0) { // What do we switch on?
+    switch(instruction.itype.funct3) { // What do we switch on?
         /* YOUR CODE HERE */
+      case 0x0:
+        //load byte
+      case 0x1:
+        // load half
+      case 0x2:
+        //load word
         default:
             handle_invalid_instruction(instruction);
             break;
@@ -295,12 +307,18 @@ void execute_load(Instruction instruction, Processor *processor, Byte *memory) {
 }
 
 void execute_store(Instruction instruction, Processor *processor, Byte *memory) {
-    switch(0) { // What do we switch on?
+    switch(instruction.stype.funct3) { // What do we switch on?
         /* YOUR CODE HERE */
-        default:
-            handle_invalid_instruction(instruction);
-            exit(-1);
-            break;
+      case 0x0:
+        // store byte
+      case 0x1:
+        // store half
+      case 0x2:
+        // store word
+      default:
+          handle_invalid_instruction(instruction);
+          exit(0);
+          break;
     }
     processor->PC += 4;
 }
@@ -342,16 +360,17 @@ void store(Byte *memory,Address address,Alignment alignment,Word value, int chec
     if((check_align && !check(address,alignment)) || (address >= MEMORY_SPACE)) {
         handle_invalid_write(address);
     }
+    memory[address] = value;
     /* YOUR CODE HERE */
 }
 
 Word load(Byte *memory,Address address,Alignment alignment, int check_align) {
     if((check_align && !check(address,alignment)) || (address >= MEMORY_SPACE)) {
-    handle_invalid_read(address);
+      handle_invalid_read(address);
     }
     
     /* YOUR CODE HERE */
-    uint32_t data = 0; // initialize our return value to zero
+    uint32_t data = memory[address];
     return data;
 }
 
