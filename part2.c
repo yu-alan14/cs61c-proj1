@@ -121,7 +121,7 @@ void execute_rtype(Instruction instruction, Processor *processor) {
    					;
    					unsigned int xor1 = processor->R[instruction.rtype.rs1];
    					unsigned int xor2 = processor->R[instruction.rtype.rs2];
-   					processor->R[instruction.rtype.rd] = xor1 * xor2;
+   					processor->R[instruction.rtype.rd] = xor1 ^ xor2;
    					break;
    				case 0x01:
    					;
@@ -265,7 +265,7 @@ void execute_itype_except_load(Instruction instruction, Processor *processor) {
 void execute_ecall(Processor *p, Byte *memory) {
     switch(p->R[10]) { // What do we switch on?
         case 1:
-          printf("%d", p->R[11]);
+          printf("%d\n", p->R[11]);
           break;
         case 10:
           exit(0);
@@ -311,13 +311,13 @@ void execute_load(Instruction instruction, Processor *processor, Byte *memory) {
     switch(instruction.itype.funct3) { // What do we switch on?
         /* YOUR CODE HERE */
       case 0x0:
-        processor->R[instruction.itype.rd] = load(memory, instruction.itype.rs1 + instruction.itype.imm, LENGTH_BYTE, 0);
+        processor->R[instruction.itype.rd] = load(memory, processor->R[instruction.itype.rs1] + instruction.itype.imm, LENGTH_BYTE, 0);
         break;
       case 0x1:
-        processor->R[instruction.itype.rd] = load(memory, instruction.itype.rs1 + instruction.itype.imm, LENGTH_HALF_WORD, 0);
+        processor->R[instruction.itype.rd] = load(memory, processor->R[instruction.itype.rs1] + instruction.itype.imm, LENGTH_HALF_WORD, 0);
         break;
       case 0x2:
-        processor->R[instruction.itype.rd] = load(memory, instruction.itype.rs1 + instruction.itype.imm, LENGTH_WORD, 0);
+        processor->R[instruction.itype.rd] = load(memory, processor->R[instruction.itype.rs1] + instruction.itype.imm, LENGTH_WORD, 0);
         break;
       default:
         handle_invalid_instruction(instruction);
@@ -357,7 +357,7 @@ void execute_jal(Instruction instruction, Processor *processor) {
 
 void execute_lui(Instruction instruction, Processor *processor) {
     int imm;
-    imm = instruction.utype.imm;
+    imm = bitSigner(instruction.utype.imm, 32) >> 12 << 12;
     processor->R[instruction.utype.rd] = imm;
     /* YOUR CODE HERE */  
 }
@@ -408,11 +408,12 @@ Word load(Byte *memory,Address address,Alignment alignment, int check_align) {
     /* YOUR CODE HERE */
     uint32_t data = 0;
     if (alignment == LENGTH_BYTE) {
-      data = memory[address];
+      data = bitSigner(memory[address], 8);
     }
     else if (alignment == LENGTH_HALF_WORD) {
       data = memory[address + 1];
       data = (data << 8) | memory[address];
+      data = bitSigner(data, 16);
     }
     else if (alignment == LENGTH_WORD) {
       data = memory[address + 3];

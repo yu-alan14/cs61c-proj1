@@ -28,6 +28,7 @@ void execute(Processor *processor,int prompt,int print) {
             while(getchar()!='\n');
         }
         printf("%08x: ",processor->PC);
+        printf("%d", processor->R[8]);
         decode_instruction(instruction);
     }
     
