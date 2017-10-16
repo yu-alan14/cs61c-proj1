@@ -60,9 +60,9 @@ void execute_rtype(Instruction instruction, Processor *processor) {
         	switch(instruction.rtype.funct7) {
         		case 0x00:
         			;
-        			int add1 = bitSigner(processor->R[instruction.rtype.rs1], 32);
-        			int add2 = bitSigner(processor->R[instruction.rtype.rs2], 32);
-        			processor->R[instruction.rtype.rd] = bitSigner(add1 + add2, 32);
+        			int add1 = processor->R[instruction.rtype.rs1];
+        			int add2 = processor->R[instruction.rtype.rs2];
+        			processor->R[instruction.rtype.rd] = add1 + add2;
         			break;
         		case 0x01:
         			;
@@ -89,14 +89,14 @@ void execute_rtype(Instruction instruction, Processor *processor) {
         			;
         			//left logical shift
         			unsigned int shift1 = processor->R[instruction.rtype.rs1];
-        			unsigned int shift2 = processor->R[instruction.rtype.rs2];
+        			int shift2 = processor->R[instruction.rtype.rs2];
         			processor->R[instruction.rtype.rd] = shift1 << shift2;
         			break;
         		case 0x01:
         			;
         			int mulh1 = processor->R[instruction.rtype.rs1];
         			int mulh2 = processor->R[instruction.rtype.rs2];
-        			processor->R[instruction.rtype.rd] = (mulh1 * mulh2);
+        			processor->R[instruction.rtype.rd] = (mulh1 * mulh2) >> 32;
         			//Remember to only take upper 32 bits?
         			break;
         		default:
@@ -107,8 +107,8 @@ void execute_rtype(Instruction instruction, Processor *processor) {
         	break;
         case 0x2:
         	;
-        	unsigned int slt1 = processor->R[instruction.rtype.rs1];
-        	unsigned int slt2 = processor->R[instruction.rtype.rs2];
+        	int slt1 = processor->R[instruction.rtype.rs1];
+        	int slt2 = processor->R[instruction.rtype.rs2];
         	if (slt1 < slt2) {
         		processor->R[instruction.rtype.rd] = 1;
         	} else {
@@ -141,15 +141,15 @@ void execute_rtype(Instruction instruction, Processor *processor) {
    					;
    					// logical shift right
    					unsigned int srl1 = processor->R[instruction.rtype.rs1];
-   					unsigned int srl2 = processor->R[instruction.rtype.rs2];
+   					int srl2 = processor->R[instruction.rtype.rs2];
    					processor->R[instruction.rtype.rd] = srl1 >> srl2;
    					break;
    				case 0x20:
    					;
    					// arithmetic right shift
-   					unsigned int sra1 = bitSigner(processor->R[instruction.rtype.rs1], 5);
-   					unsigned int sra2 = processor->R[instruction.rtype.rs2];
-   					processor->R[instruction.rtype.rd] = sra1 >> sra2;
+   					unsigned int sra1 = processor->R[instruction.rtype.rs1];
+   					int sra2 = processor->R[instruction.rtype.rs2];
+   					processor->R[instruction.rtype.rd] = bitSigner(sra1 >> sra2, 32 - sra2);
    					break;
    				default:
    					handle_invalid_instruction(instruction);
@@ -203,8 +203,8 @@ void execute_itype_except_load(Instruction instruction, Processor *processor) {
         	break;
         case 0x1:
         	;
-        	int slli1 = processor->R[instruction.itype.rs1];
-        	int slli2 = bitSigner(instruction.itype.imm, 12);
+        	unsigned int slli1 = processor->R[instruction.itype.rs1];
+        	int slli2 = instruction.itype.imm;
         	processor->R[instruction.itype.rd] = slli1 << slli2;
         	break;
         case 0x2:
@@ -229,15 +229,15 @@ void execute_itype_except_load(Instruction instruction, Processor *processor) {
         			;
         			//logical shift right should be good??
         			unsigned int srli1 = processor->R[instruction.itype.rs1];
-        			unsigned int srli2 = bitSigner(instruction.itype.imm, 12);
+        			int srli2 = instruction.itype.imm;
         			processor->R[instruction.itype.rd] = srli1 >> srli2;
         			break;
         		case 0x20:
         			;
         			//arithmetic shift left idk??
-        			unsigned int srai1 = bitSigner(processor->R[instruction.itype.rs1], 5);
-        			unsigned int srai2 = bitSigner(instruction.itype.imm, 12);
-        			processor->R[instruction.itype.rd] = srai1 >> srai2;
+        			unsigned int srai1 = processor->R[instruction.itype.rs1];
+        			int srai2 = instruction.itype.imm;
+        			processor->R[instruction.itype.rd] = bitSigner(srai1 >> srai2, 32 - srai2);
         			break;
         		default:
         			handle_invalid_instruction(instruction);
@@ -280,7 +280,7 @@ void execute_ecall(Processor *p, Byte *memory) {
 
 void execute_branch(Instruction instruction, Processor *processor) {
     int branchaddr;
-    branchaddr = processor->PC + get_branch_offset(instruction);
+    branchaddr = processor->PC + bitSigner(get_branch_offset(instruction), 13);
     /* Remember that the immediate portion of branches
        is counting half-words, so make sure to account for that. */
     switch(instruction.sbtype.funct3) { // What do we switch on?
@@ -312,13 +312,13 @@ void execute_load(Instruction instruction, Processor *processor, Byte *memory) {
     switch(instruction.itype.funct3) { // What do we switch on?
         /* YOUR CODE HERE */
       case 0x0:
-        processor->R[instruction.itype.rd] = load(memory, processor->R[instruction.itype.rs1] + instruction.itype.imm, LENGTH_BYTE, 0);
+        processor->R[instruction.itype.rd] = load(memory, processor->R[instruction.itype.rs1] + bitSigner(instruction.itype.imm, 12), LENGTH_BYTE, 0);
         break;
       case 0x1:
-        processor->R[instruction.itype.rd] = load(memory, processor->R[instruction.itype.rs1] + instruction.itype.imm, LENGTH_HALF_WORD, 0);
+        processor->R[instruction.itype.rd] = load(memory, processor->R[instruction.itype.rs1] + bitSigner(instruction.itype.imm, 12), LENGTH_HALF_WORD, 0);
         break;
       case 0x2:
-        processor->R[instruction.itype.rd] = load(memory, processor->R[instruction.itype.rs1] + instruction.itype.imm, LENGTH_WORD, 0);
+        processor->R[instruction.itype.rd] = load(memory, processor->R[instruction.itype.rs1] + bitSigner(instruction.itype.imm, 12), LENGTH_WORD, 0);
         break;
       default:
         handle_invalid_instruction(instruction);
@@ -349,7 +349,7 @@ void execute_jal(Instruction instruction, Processor *processor) {
     /* Remember that the immediate and offset are counting half-words.
 	   So make sure to plan accordingly to accomodate that. */
     int nextPC;
-    nextPC = processor->PC + get_jump_offset(instruction);
+    nextPC = processor->PC + bitSigner(get_jump_offset(instruction), 21);
     processor->R[instruction.ujtype.rd] = processor->PC + 4;
     processor->PC = nextPC;
 
