@@ -121,7 +121,7 @@ void execute_rtype(Instruction instruction, Processor *processor) {
    					;
    					unsigned int xor1 = processor->R[instruction.rtype.rs1];
    					unsigned int xor2 = processor->R[instruction.rtype.rs2];
-   					processor->R[instruction.rtype.rd] = xor1 * xor2;
+   					processor->R[instruction.rtype.rd] = xor1 ^ xor2;
    					break;
    				case 0x01:
    					;
@@ -273,17 +273,23 @@ void execute_ecall(Processor *p, Byte *memory) {
 }
 
 void execute_branch(Instruction instruction, Processor *processor) {
-    /*int branchaddr;
-    branchaddr = 0;*/
+    int branchaddr;
+    branchaddr = processor->PC + get_branch_offset(instruction);
     /* Remember that the immediate portion of branches
-       is counting half-words, so make sure to account for that. */
+       is counting half-words, so make sure to account for that.??? */ 
     switch(instruction.sbtype.funct3) { // What do we switch on?
         unsigned int eq1 = processor->R[instruction.sbtype.rs1];
         unsigned int eq2 = processor->R[instruction.sbtype.rs2];
         case 0x0:
           //branch eq
+          if (eq1 == eq2) {
+            processor->PC = branchaddr;
+          }
         case 0x1:
           // branch not eq
+          if (eq1 != eq2) {
+            processor->PC = branchaddr;
+          }
         /* YOUR CODE HERE */
         default:
             handle_invalid_instruction(instruction);
@@ -326,15 +332,17 @@ void execute_store(Instruction instruction, Processor *processor, Byte *memory) 
 void execute_jal(Instruction instruction, Processor *processor) {
     /* Remember that the immediate and offset are counting half-words.
 	   So make sure to plan accordingly to accomodate that. */
-    /*int nextPC;
-    nextPC = 0;*/
+    int nextPC;
+    nextPC = processor->PC + get_jump_offset(instruction);
     /* YOUR CODE HERE */
+    processor->R[instruction.ujtype.rd] = nextPC;
 }
 
 void execute_lui(Instruction instruction, Processor *processor) {
-    /*int imm;
-    imm = 0;*/
-    /* YOUR CODE HERE */  
+    int imm;
+    imm = instruction.utype.imm; /*31:12 bit imm*/
+    /* YOUR CODE HERE */
+    processor->R[instruction.utype.rd] = imm;  
 }
 
 /* Checks that the address is aligned correctly */
@@ -359,7 +367,6 @@ void store(Byte *memory,Address address,Alignment alignment,Word value, int chec
     if((check_align && !check(address,alignment)) || (address >= MEMORY_SPACE)) {
         handle_invalid_write(address);
     }
-    memory[address] = value;
     /* YOUR CODE HERE */
 }
 
@@ -369,7 +376,20 @@ Word load(Byte *memory,Address address,Alignment alignment, int check_align) {
     }
     
     /* YOUR CODE HERE */
-    uint32_t data = memory[address];
+    uint32_t data = 0;
+    if (alignment == LENGTH_BYTE) {
+        data = memory[address];
+    }
+    if (alignment == LENGTH_HALF_WORD) {
+      data = memory[address];
+      data = data << 8 | memory[address + 1];
+    }
+    if (alignment == LENGTH_WORD) {
+      data = memory[address];
+      data = data << 8 | memory[address + 1];
+      data = data << 8 | memory[address + 2];
+      data = data << 8 | memory[address + 3];
+    }
     return data;
 }
 
