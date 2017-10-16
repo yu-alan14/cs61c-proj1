@@ -18,24 +18,30 @@ void execute_instruction(Instruction instruction,Processor *processor,Byte *memo
     switch(instruction.opcode) { // What do we switch on?
         case 0x33:
             execute_rtype(instruction, processor);
+            processor->PC += 4;
             break;
         case 0x03:
             execute_load(instruction, processor, memory);
             break;
         case 0x13:
             execute_itype_except_load(instruction, processor);
+            processor->PC += 4;
             break;
         case 0x73:
             execute_ecall(processor, memory);
+            processor->PC += 4;
             break;        
         case 0x23:
             execute_store(instruction, processor, memory);
+            processor->PC += 4;
             break;
         case 0x63:
             execute_branch(instruction, processor);
+            processor->PC += 4;
             break;
         case 0x37:
             execute_lui(instruction, processor);
+            processor->PC += 4;
             break;
         case 0x6f:
             execute_jal(instruction, processor);
@@ -182,12 +188,11 @@ void execute_rtype(Instruction instruction, Processor *processor) {
             exit(-1);
             break;
     }
-    processor->PC += 4; //Checks next line of instruction, look at JAL not sure
 }
 
 void execute_itype_except_load(Instruction instruction, Processor *processor) {
-    int shiftOp;
-    shiftOp = -1;
+    /*int shiftOp;
+    shiftOp = -1;*/
     switch(instruction.itype.funct3) { // What do we switch on?
         /* YOUR CODE HERE */
         case 0x0:
@@ -255,7 +260,6 @@ void execute_itype_except_load(Instruction instruction, Processor *processor) {
             handle_invalid_instruction(instruction);
             break;
     }
-    processor->PC += 4;
 }
 
 void execute_ecall(Processor *p, Byte *memory) {
@@ -266,12 +270,11 @@ void execute_ecall(Processor *p, Byte *memory) {
             exit(-1);
             break;
     }
-    p->PC += 4;
 }
 
 void execute_branch(Instruction instruction, Processor *processor) {
-    int branchaddr;
-    branchaddr = 0;
+    /*int branchaddr;
+    branchaddr = 0;*/
     /* Remember that the immediate portion of branches
        is counting half-words, so make sure to account for that. */
     switch(0) { // What do we switch on?
@@ -281,7 +284,6 @@ void execute_branch(Instruction instruction, Processor *processor) {
             exit(-1);
             break;
     }
-    processor->PC += 4;
 }
 
 void execute_load(Instruction instruction, Processor *processor, Byte *memory) {
@@ -291,7 +293,6 @@ void execute_load(Instruction instruction, Processor *processor, Byte *memory) {
             handle_invalid_instruction(instruction);
             break;
     }
-    processor->PC += 4;
 }
 
 void execute_store(Instruction instruction, Processor *processor, Byte *memory) {
@@ -302,22 +303,20 @@ void execute_store(Instruction instruction, Processor *processor, Byte *memory) 
             exit(-1);
             break;
     }
-    processor->PC += 4;
 }
 
 void execute_jal(Instruction instruction, Processor *processor) {
     /* Remember that the immediate and offset are counting half-words.
 	   So make sure to plan accordingly to accomodate that. */
-    int nextPC;
-    nextPC = 0;
+    /*int nextPC;
+    nextPC = 0;*/
     /* YOUR CODE HERE */
 }
 
 void execute_lui(Instruction instruction, Processor *processor) {
-    int imm;
-    imm = 0;
+    /*int imm;
+    imm = 0;*/
     /* YOUR CODE HERE */  
-    processor->PC += 4;
 }
 
 /* Checks that the address is aligned correctly */
