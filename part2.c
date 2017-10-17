@@ -94,9 +94,10 @@ void execute_rtype(Instruction instruction, Processor *processor) {
         			break;
         		case 0x01:
         			;
-        			int mulh1 = processor->R[instruction.rtype.rs1];
-        			int mulh2 = processor->R[instruction.rtype.rs2];
-        			processor->R[instruction.rtype.rd] = ((uint64_t) (mulh1 * mulh2)) >> 32;
+        			sDouble mulh1 = processor->R[instruction.rtype.rs1];
+        			sDouble mulh2 = processor->R[instruction.rtype.rs2];
+              sDouble result = mulh1 * mulh2;
+        			processor->R[instruction.rtype.rd] = result >> 32;
         			//Remember to only take upper 32 bits?
         			break;
         		default:
@@ -147,9 +148,9 @@ void execute_rtype(Instruction instruction, Processor *processor) {
    				case 0x20:
    					;
    					// arithmetic right shift
-   					unsigned int sra1 = processor->R[instruction.rtype.rs1];
+   					int sra1 = processor->R[instruction.rtype.rs1];
    					int sra2 = processor->R[instruction.rtype.rs2];
-   					processor->R[instruction.rtype.rd] = bitSigner(sra1 >> sra2, 32 - sra2);
+   					processor->R[instruction.rtype.rd] = sra1 >> sra2;
    					break;
    				default:
    					handle_invalid_instruction(instruction);
@@ -235,9 +236,9 @@ void execute_itype_except_load(Instruction instruction, Processor *processor) {
         		case 0x20:
         			;
         			//arithmetic shift left idk??
-        			unsigned int srai1 = processor->R[instruction.itype.rs1];
+        			int srai1 = processor->R[instruction.itype.rs1];
         			int srai2 = instruction.itype.imm;
-        			processor->R[instruction.itype.rd] = bitSigner(srai1 >> srai2, 32 - srai2);
+        			processor->R[instruction.itype.rd] = srai1 >> srai2;
         			break;
         		default:
         			handle_invalid_instruction(instruction);
