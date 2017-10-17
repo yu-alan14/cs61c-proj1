@@ -96,7 +96,7 @@ void execute_rtype(Instruction instruction, Processor *processor) {
         			;
         			int mulh1 = processor->R[instruction.rtype.rs1];
         			int mulh2 = processor->R[instruction.rtype.rs2];
-        			processor->R[instruction.rtype.rd] = (mulh1 * mulh2) >> 32;
+        			processor->R[instruction.rtype.rd] = ((uint64_t) (mulh1 * mulh2)) >> 32;
         			//Remember to only take upper 32 bits?
         			break;
         		default:
@@ -281,11 +281,11 @@ void execute_ecall(Processor *p, Byte *memory) {
 void execute_branch(Instruction instruction, Processor *processor) {
     int branchaddr;
     branchaddr = processor->PC + bitSigner(get_branch_offset(instruction), 13);
+    int eq1 = processor->R[instruction.sbtype.rs1];
+    int eq2 = processor->R[instruction.sbtype.rs2];
     /* Remember that the immediate portion of branches
        is counting half-words, so make sure to account for that. */
     switch(instruction.sbtype.funct3) { // What do we switch on?
-        unsigned int eq1 = processor->R[instruction.sbtype.rs1];
-        unsigned int eq2 = processor->R[instruction.sbtype.rs2];
         case 0x0:
           if (eq1 == eq2) {
             processor->PC = branchaddr;
@@ -349,7 +349,7 @@ void execute_jal(Instruction instruction, Processor *processor) {
     /* Remember that the immediate and offset are counting half-words.
 	   So make sure to plan accordingly to accomodate that. */
     int nextPC;
-    nextPC = processor->PC + bitSigner(get_jump_offset(instruction), 21);
+    nextPC = processor->PC + get_jump_offset(instruction);
     processor->R[instruction.ujtype.rd] = processor->PC + 4;
     processor->PC = nextPC;
 
